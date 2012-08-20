@@ -21,6 +21,8 @@ foreach $e (<.*>,<*>) {
         ||
         ($e eq ".git")
         ||
+        ($e eq ".gitignore")
+        ||
         ($e eq "backups")
         ||
         ($e =~ m/~$/)

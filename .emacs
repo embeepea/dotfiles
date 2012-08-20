@@ -11,7 +11,11 @@
   ;; If you edit it by hand, you could mess it up, so be careful.
   ;; Your init file should contain only one such instance.
   ;; If there is more than one, they won't work right.
- '(comint-highlight-prompt ((t (:foreground "cornflowerblue")))))
+ '(comint-highlight-prompt ((t (:foreground "cyan"))))
+ '(dired-directory ((t (:inherit font-lock-function-name-face :foreground "cyan"))))
+ '(font-lock-function-name-face ((((class color) (min-colors 88) (background light)) (:foreground "cyan"))))
+ '(minibuffer-prompt ((t (:foreground "cyan"))))
+)
 
 (add-hook 'js-mode-hook
 	  '(lambda ()
