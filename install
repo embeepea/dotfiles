@@ -1,0 +1,69 @@
+#! /usr/bin/perl
+
+if (! -f "install") {
+    die "install script must be run from inside ~/dotfiles directory\n";
+}
+
+# make this install script executable, to make it easier to run it in the future
+system("chmod +x install");
+
+# all files in the "bin" directory executable
+foreach $e (<bin/*>) {
+    system("chmod +x $e");
+}
+
+# 'install' every entry in this dir --- i.e. create a symlnk in ~ to it,
+# skipping certain entries that we never want to install
+foreach $e (<.*>,<*>) {
+    if (($e eq ".")
+        ||
+        ($e eq "..")
+        ||
+        ($e eq ".git")
+        ||
+        ($e eq "backups")
+        ||
+        ($e =~ m/~$/)
+        ||
+        ($e eq "install")
+        ) {
+        next;
+    }
+    install($e);
+}
+
+sub install {
+    my $e = shift;
+
+    # If there is already a link ../$e, skip it
+    if (-l "../$e") {
+        print "skipping $e (already installed)\n";
+        return;
+    }
+
+    # If there is a file or directory ../$e, move it to the dotfiles/backups directory, unless there
+    # is already a file named $e in that directory, in which case we skip it
+    if (-e "../$e") {
+        insure_backups_dir();
+        if (! -e "backups/$e") {
+            system("mv ../$e backups");
+            printf("existing file ../$e saved in 'backups' directory\n");
+        } else {
+            printf("skipping ../$e because an existing file backups/$e prevents creating a backup of it\n");
+            return;
+        }
+    }
+
+    # create the symlink
+    system("(cd .. ; ln -s dotfiles/$e $e)");
+    printf("created symlink ~/$e -> dotfiles/$e\n");
+}
+
+sub insure_backups_dir {
+    if (-f "./backups") {
+        die "cannot create './backups' directory: a file named 'backups' is in the way\n";
+    }
+    if (! -d "./backups") {
+        system("mkdir backups");
+    }
+}
