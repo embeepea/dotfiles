@@ -1,0 +1,42 @@
+#! /usr/bin/perl
+
+# usage: skillall STRING
+#   kills all processes having STRING in their name
+#
+# by Mark Phillips
+# Tue Aug  9 14:45:14 2005
+
+my $string = shift;
+
+@pids = ();
+%command = ();
+open(PS, "ps auxww|");
+while (<PS>) {
+    s/\n//;
+    if (($USER,$PID,$CPU,$MEM,$VSZ,$RSS,$TTY,$STAT,$START,$TIME,$COMMAND) = 
+	/(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(.*)$/) {
+	if ($COMMAND eq "COMMAND") { next; }
+	if ($COMMAND =~ /\Q$string\E/ && ($PID != $$)) {
+	    push(@pids, $PID);
+	    $command{$PID} = $COMMAND;
+	}
+    }
+}
+close(PS);
+
+if (@pids) {
+    print "Found these processes:\n";
+    foreach $pid (@pids) {
+	printf("  %5d  %s\n", $pid, $command{$pid});
+    }
+    print "Kill them? ";
+    $ans = <STDIN>;
+    if ($ans !~ /^y/i) {
+	print "Nothing killed.\n";
+	exit;
+    }
+    kill(9, @pids);
+} else {
+    print "No processed found\n";
+}
+

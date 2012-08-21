@@ -1,0 +1,76 @@
+#! /usr/bin/perl
+
+# rrm: recursive remove with single advance confirmation
+
+# usage: rrm [-b] FILE ...
+#
+#   -b means do the removal in the background after asking for confirmation
+
+my @files = ();
+my $background = 0;
+my $arg = shift;
+
+if ($arg eq "-b") {
+    $background = 1;
+} else {
+    push(@files, $arg);
+}
+
+while ($arg = shift) {
+    push(@files, $arg);
+}
+
+if (!@files) {
+    die "usage: rrm [-b] FILE ...\n";
+}
+
+my $files = join(" ", @files);
+
+print("rrm: really recursively remove $files [yN] ?");
+
+chomp(my $answer = <STDIN>);
+
+if (lc($answer) eq "y") {
+    if ($background) {
+        system("/bin/rm -r -f $files &");
+    } else {
+        system("/bin/rm -r -f $files");
+    }
+} else {
+    printf("rrm: nothing removed\n");
+}
+
+### old csh version:
+###
+### #! /bin/csh -f
+### 
+### # rrm: recursive remove with single advance confirmation
+### 
+### # usage: rrm file ...
+### 
+### if ($#argv == 0) goto usage
+### 
+### if ("$1" == "-b") then
+###  set bg = 1
+###  shift
+### else
+###  set bg = 0
+### endif
+### 
+### echo -n "rrm: really recursively remove $* [yn] ?"
+### set answer = $<
+### 
+### if ( ("$answer" == "y") || ("$answer" == "Y") ) then
+###   if ($bg) then
+###     /bin/rm -r -f $* &
+###   else
+###     /bin/rm -r -f $*
+###   endif
+### else
+###   echo rrm: nothing removed
+### endif
+### 
+### exit
+### 
+### usage:
+###   echo usage: rrm file ...

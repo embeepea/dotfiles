@@ -1,0 +1,49 @@
+#! /usr/bin/perl
+
+my $general = 0;
+if ($ARGV[0] eq "-g") {
+    $general = 1;
+    shift;
+}
+
+foreach $file (@ARGV) {
+    &mfix($file);
+}
+
+
+sub mfix {
+    local($file) = @_;
+    local($tmpfile) = "$file.tmp";
+    open(IN, "<$file");
+    open(OUT, ">$tmpfile");
+
+    print "mfixing $file\n";
+
+    while (<IN>) {
+	if ($general) {
+	    s//\n/gm;
+	} else {
+	    s/$//;
+	}
+	print OUT $_;
+	if (!/\n$/) { print OUT "\n"; }
+    }
+
+    close(OUT);
+    close(IN);
+
+    rename($tmpfile, $file);
+}
+
+# while [ "$1" != "" ] ; do
+#   file="$1";
+#   if sed -e 's///' -e 's/$//' < $file > $file.new ; then
+#     mv $file.new $file
+#     echo fixed $file
+#   else
+#     echo ERROR while fixing $file
+#   fi
+#   shift
+# done
+
+

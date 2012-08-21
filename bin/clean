@@ -1,0 +1,45 @@
+#! /usr/bin/perl
+
+$| = 1;
+
+$quiet = 0;
+$local = 0;
+while (@ARGV) {
+    $ARG = shift;
+    if ($ARG eq "-q") {
+	$quiet = 1;
+    } elsif ($ARG eq "-l") {
+	$local = 1;
+    }
+}
+
+$maxdepth = "";
+if ($local) { $maxdepth = "-maxdepth 1"; }
+open(FIND, "find . $maxdepth \\( -name '*~' -o -name '.*~' \\) -print |");
+@files = ();
+while (<FIND>) {
+    s/\n//;
+    if (/\S/) {
+	push(@files, $_);
+    }
+}
+close(FIND);
+
+if (@files) {
+    print "Found the following files to be cleaned:\n";
+    foreach $file (@files) {
+	print "    $file\n";
+    }
+    if (!$quiet) {
+	print "Really delete them? [Y/n] ";
+	$answer = <STDIN>;
+	$answer =~ s/\s+//g;
+	if (lc(substr($answer, 0, 1)) eq 'n') {
+	    print "nothing deleted\n";
+	    exit;
+	}
+    }
+    foreach $file (@files) {
+	unlink($file);
+    }
+}
