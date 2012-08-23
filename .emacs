@@ -22,3 +22,8 @@
     (add-hook 'before-save-hook
       (lambda ()
         (untabify (point-min) (point-max))))))
+
+;; turn off ridiculous visual line movement behavior, so next-line, previous-line, etc
+;; behave as I expect (they operate on logical lines in the buffer, independent of
+;; any wrapping):
+(setq line-move-visual 'nil)
