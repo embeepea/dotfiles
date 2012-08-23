@@ -4,7 +4,7 @@
 [core]
         autocrlf = input
         safecrlf = true
-        pager    = /home/mbp/bin/gitpager
+        pager    = gitpager
 [alias]
         co = checkout
         ci = commit
