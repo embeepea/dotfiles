@@ -23,6 +23,8 @@ foreach $e (<.*>,<*>) {
         ||
         ($e eq ".gitignore")
         ||
+        ($e eq "README.md")
+        ||
         ($e eq "backups")
         ||
         ($e =~ m/~$/)
