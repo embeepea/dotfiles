@@ -61,7 +61,7 @@ current buffer window."
         )
     (if (string-match this-substring filename)
         (let (
-              (related-file-name (replace-last-component filename this-substring related-substring))
+              (related-file-name (replace-last-substring filename this-substring related-substring))
               )
           (if other-window
               (find-file-other-window related-file-name)
@@ -76,22 +76,22 @@ current buffer window."
 (defun spec ()
   "Visit the current src file's spec file, in the same buffer window."
   (interactive)
-  (visit-other-file "src" "spec" nil)
+  (visit-related-file "src" "spec" nil)
 )
 (defun spec-other-window ()
   "Visit the current src file's spec file, in a different buffer window."
   (interactive)
-  (visit-other-file "src" "spec" t)
+  (visit-related-file "src" "spec" t)
 )
 (defun src ()
   "Visit the current spec file's src file, in the same buffer window."
   (interactive)
-  (visit-other-file "spec" "src" nil)
+  (visit-related-file "spec" "src" nil)
 )
 (defun src-other-window ()
   "Visit the current spec file's src file, in a different buffer window."
   (interactive)
-  (visit-other-file "spec" "src" t)
+  (visit-related-file "spec" "src" t)
 )
 
 (defun src-spec-switch (arg)
@@ -100,9 +100,9 @@ open the other file in a different buffer."
   (interactive "p")
   (let ((other-window (> arg 1)))
     (if (string-match "/src/" (buffer-file-name))
-        (visit-other-file "src" "spec" other-window)
+        (visit-related-file "src" "spec" other-window)
       (if (string-match "/spec/" (buffer-file-name))
-          (visit-other-file "spec" "src" other-window)
+          (visit-related-file "spec" "src" other-window)
         (message "The current buffer does not appear to be visiting either a src or spec file."))
       )
     )
