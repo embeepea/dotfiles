@@ -132,7 +132,7 @@ open the other file in a different buffer."
 (global-set-key "\M-g"          'goto-line)
 (global-set-key "\M-s"          'center-line)
 (global-set-key "\M-r"          'replace-string)
-(global-set-key "\C-x\C-c"      'query-save-buffers-kill-emacs)
+;;(global-set-key "\C-x\C-c"      'query-save-buffers-kill-emacs)
 (global-set-key "\M-\C-r"       'replace-regexp)
 (global-set-key "\C-x9"         'compile)
 (global-set-key "\C-x8"         'next-error)
