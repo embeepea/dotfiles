@@ -1,0 +1,286 @@
+#! /usr/bin/perl
+
+#   httptap 1.1 by mbp, Tue Apr 21 09:21:45 1998
+#
+#   Debugging program to "tap" in on the conversation between a web
+#   browser and server.  Works as follows.  Give a command like
+#
+#      httptap 1066 www.whatever.com
+#
+#   on host yourmachine.  Then use a web browser (on any machine) to
+#   connect to http://yourmachine:1066/some/document/bla/bla.  httptap
+#   will forward this request on to www.whatever.com, fetching the same
+#   URL from it (i.e.  http://www.whatever.com/some/document/bla/bla)
+#   and returning it to your browser, echoing the conversation between
+#   the browser and the server to STDOUT along the way.
+#
+#   Exact usage is: httptap LOCALPORT SERVER[:NNN]
+#
+#     LOCALPORT is the number of the port to listen to on the local
+#       host.  Should be > 1000.
+#     SERVER is the www server to connect to.  SERVER may end with :NNN,
+#       in which case the connection will be made to its port NNN.
+#       This defaults to the usual http port 80.  SERVER may also be
+#       the special string "-proxy", in which case you can instruct
+#       your browser to use this program as a proxy server (for http
+#       connections only), which will allow you to tap in on your
+#       browser's connections to all servers it contacts.  In this
+#       case, you just use the browser as usual --- no need to modify
+#       the URLs you type into it.
+#
+#   NOTE: Stop this program by interrupting or killing it.  After doing
+#   that, you'll have to wait a minute or so before starting it up again.
+#   (If you get the "address already in use" message, wait a minute and
+#   try again.)
+#
+#   CHANGE LOG:
+#     version 1.1 Tue Apr 21 09:21:45 1998
+#	added -proxy option
+#     version 1.0 Mon Apr 20 22:57:16 1998
+#	initial version
+
+
+use Socket;
+
+# sockets:
+#   FD_LISTEN: socket to listen for new connections on
+#   FD_CLIENT: connection to client (browser)
+#   FD_SERVER: connection to server
+
+sub start_listening {
+    my($port) = @_;
+    print "Listening for connections on port $port\n";
+    my $proto = getprotobyname('tcp');
+    socket(FD_LISTEN, PF_INET, SOCK_STREAM, $proto) || die $!;
+    my $sin = sockaddr_in($port,INADDR_ANY);
+    bind(FD_LISTEN,$sin) || die $!;
+    my $length = 10;
+    listen(FD_LISTEN, $length) || die $!;
+}
+
+sub sighandler {
+    my($sig) = @_;
+    close(FD_LISTEN);
+    print "Shutting down.  You may have to wait a minute before using
+  port $LOCALPORT on this machine again.\n";
+    exit(0);
+}
+
+$SIG{INT} = 'sighandler';
+$SIG{QUIT} = 'sighandler';
+
+
+sub open_tcp
+{
+  # get parameters
+  my ($FS, $dest, $port) = @_;
+
+  my $proto = getprotobyname('tcp');
+  socket($FS, PF_INET, SOCK_STREAM, $proto);
+  my $sin = sockaddr_in($port,inet_aton($dest));
+  connect($FS,$sin) || return undef;
+  
+  my $old_fh = select($FS); 
+  $| = 1; 		        # don't buffer output
+  select($old_fh);
+  1;
+}
+
+# Given a full URL, return the scheme, hostname, port, and path
+# into ($scheme, $hostname, $port, $path).  We'll only deal with
+# HTTP URLs.
+
+sub parse_url {
+
+  # put URL into variable
+  my ($URL) = @_;
+
+  # attempt to parse.  Return undef if it didn't parse.
+  (my @parsed =$URL =~ m@(\w+)://([^/:]+)(:\d*)?([^#]*)@) || return undef;
+
+  # remove colon from port number, even if it wasn't specified in the URL
+  if (defined $parsed[2]) {
+    $parsed[2]=~ s/^://;
+  }
+
+  # the path is "/" if one wasn't specified
+  $parsed[3]='/' if ($parsed[0]=~/http/i && (length $parsed[3])==0);
+
+  # if port number was specified, we're done
+  return @parsed if (defined $parsed[2]);
+
+  # otherwise, assume port 80, and then we're done.
+  $parsed[2] = 80;
+
+  @parsed;
+}
+
+
+sub print_to_client {
+    local($string) = @_;
+    print FD_CLIENT $string;
+    $string =~ s/[\n\015]//g;
+    print "***SERVER: $string\n";
+}
+
+sub print_to_server {
+    local($string) = @_;
+    print FD_SERVER $string;
+    $string =~ s/[\n\015]//g;
+    print "---CLIENT: $string\n";
+}
+
+
+$| = 1;
+
+# usage: httptap LOCALPORT -proxy
+
+if ($#ARGV != 1) {
+    print "usage: httptap LOCALPORT SERVER[:NNN]\n";
+    exit(-1);
+}
+
+$LOCALPORT = $ARGV[0];
+$SERVER = $ARGV[1];
+
+if ($SERVER eq "-proxy") {
+    $proxy = 1;
+} else {
+    $proxy = 0;
+    ($server,$port) = ($SERVER =~ /([^:]+):?(.*)/);
+    if ($port eq "") { $port = 80; }
+}
+
+start_listening($LOCALPORT);
+
+connection: while (1) {
+
+    print "\nWaiting for new connection request...\n\n";
+    accept(FD_CLIENT,FD_LISTEN) || die $!;
+
+    #
+    # Got a new connection.  If we're running as a proxy, get the first
+    #   line of the request and parse the URL it contains.
+    #
+    if ($proxy) {
+	$request = <FD_CLIENT>;
+	$request =~ s/\n\015//g;
+	if ( ($method,$url,$rest) = ($request =~ /^(\S+)\s+(\S+)\s+(.*)$/) ) {
+	    ($scheme, $server, $port, $path) = parse_url($url);
+	    if (! ($scheme =~ /http/i) ) {
+		print "httptap ERROR: $scheme unsupported scheme in request $request\n";
+		close(FD_CLIENT);
+		next connection;
+	    }
+	} else {
+	    print "httptap ERROR: unrecognized first line in request: $request\n";
+	    close(FD_CLIENT);
+	    next connection;
+	}
+    }
+
+    #
+    # 1. Open a connection to the real server.
+    #
+    open_tcp(FD_SERVER, $server, $port);
+
+    #
+    #    If we're running as a proxy, we're already read the first
+    #      line of the request from the client.  Send it on to the
+    #      server now, omitting the scheme and server part.
+    if ($proxy) {
+	print "httptap: connecting to SERVER $server\n";
+	print_to_server "$method $path $rest\n";
+    }
+
+    #
+    # 2. Read lines from the client until we get a blank line, and send
+    #    each of those lines to the real server and to STDOUT.  This
+    #    is the HTTP request header.  Also watch the header for a
+    #    "Content-length:" line, so that we know if this request has
+    #    any body.
+    #
+    $request_content_length = 0;
+    while (<FD_CLIENT>) {
+	print_to_server $_;
+	s/[\n\015]*//g;
+	if (/^$/) {
+	    last;
+	}
+	if (/Content-length\s*:\s*(\S+)/i) {
+	    $request_content_length = $1;
+	}
+    }
+
+    #
+    # 3. If there was a Content-length specified in the request
+    #    header, read that many bytes from the client and send them to
+    #    the server.  This is the request body.  Most requests don't
+    #    have bodies.  One special type that does is a POST request.
+    #
+    if ($request_content_length > 0) {
+	$request_content = "";
+	while ($request_content_length--) {
+	    $request_content .= getc(FD_CLIENT);
+	}
+	print_to_server "$request_content";
+    }
+
+
+
+
+    #
+    # 4. Read lines from the server until we get blank line, and send
+    #    each of those lines to the real server and to STDOUT.  This
+    #    is the HTTP response header.  Also watch the header for a
+    #    "Content-length:" line, so that we know how to deal with the
+    #    response body, if any.
+    #
+    $response_content_length = 0;
+    while (<FD_SERVER>) {
+	print_to_client $_;
+	s/[\n\015]*//g;
+	if (/^$/) {
+	    last;
+	}
+	if (/Content-length\s*:\s*(\S+)/) {
+	    $response_content_length = $1;
+	}
+    }
+
+    #
+    # 5. If there was a Content-length specified in the response
+    #    header, read that many bytes from the server and send them to
+    #    the client.  Otherwise, read from the server up until EOF
+    #    and send everything to the client.
+    #
+    if ($response_content_length > 0) {
+	$response_content = "";
+	while ($response_content_length--) {
+	    $c = getc(FD_SERVER);
+	    $response_content .= $c;
+	    if ($c =~ /[\n\015]/) {
+		print_to_client "$response_content";
+		$response_content = "";
+	    }
+	}
+	if ($response_content ne "") {
+	    print_to_client "$response_content";
+	}
+    } else {
+	while (<FD_SERVER>) {
+          s/[\n\015]//g;
+	  print_to_client "$_\n";
+        }
+    }
+
+
+    #
+    # 6. Close connections to real server and client.  This rudely ignores
+    #    any request that either the server or the client may have
+    #    made to keep the connection alive, but oh well.  I'm not sure
+    #    how to handle keep-alive connections anyway.
+    #
+    close(FD_SERVER);
+    close(FD_CLIENT);
+}
