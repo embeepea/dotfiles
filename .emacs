@@ -19,7 +19,8 @@
 ;; arrange to untabify .js files before saving them
 (add-hook 'js-mode-hook
  '(lambda ()
-    (add-hook 'before-save-hook
+    (make-local-variable 'write-file-functions)
+    (add-hook 'write-file-functions
       (lambda ()
         (untabify (point-min) (point-max))))))
 
