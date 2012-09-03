@@ -1,1 +1,4 @@
-./js2-*.el*
+js2-imenu-extras.el
+js2-imenu-extras.elc
+js2-mode.el
+js2-mode.elc
