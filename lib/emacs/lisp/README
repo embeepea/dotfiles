@@ -1,0 +1,8 @@
+This directory contans various *.el and *.elc files used by emacs.
+
+Notes about particlar files/subdirectories:
+
+js2-mode-*
+    This subdirectory contains a copy of the project
+    https://github.com/mooz/js2-mode, named according to the most
+    recent commit on that project.

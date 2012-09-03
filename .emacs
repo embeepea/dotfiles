@@ -17,17 +17,24 @@
 )
 
 ;; arrange to untabify .js files before saving them
-(add-hook 'js-mode-hook
- '(lambda ()
-    (make-local-variable 'write-file-functions)
-    (add-hook 'write-file-functions
-      (lambda ()
-        (untabify (point-min) (point-max))))))
+(defun add-auto-untabify-on-save-hook ()
+   (make-local-variable 'write-file-functions)
+   (add-hook 'write-file-functions
+	     (lambda ()
+	       (untabify (point-min) (point-max)))))
+(add-hook 'js-mode-hook 'add-auto-untabify-on-save-hook)
+(add-hook 'js2-mode-hook 'add-auto-untabify-on-save-hook)
 
 ;; turn off ridiculous visual line movement behavior, so next-line, previous-line, etc
 ;; behave as I expect (they operate on logical lines in the buffer, independent of
 ;; any wrapping):
 (setq line-move-visual 'nil)
+
+;; prepend our own personal elisp dir to the load path
+(setq load-path (cons "~/lib/emacs/lisp" load-path))
+
+(autoload 'js2-mode "js2-mode" nil t)
+(add-to-list 'auto-mode-alist '("\\.js$" . js2-mode))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;                                            
 ;;                                                                                                                            
