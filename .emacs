@@ -40,7 +40,7 @@
 ;; load the spec-src-switch library, and bind a key for convenient switching between
 ;; src and spec files
 (load-library "spec-src-switch")
-(global-set-key "\C-cs" 'sss-src-spec-switch)
+(global-set-key "\C-cs" 'sss-switch)
 
 ;; some misc convenient key bindings
 (global-set-key "\C-xw"         'compare-windows)
