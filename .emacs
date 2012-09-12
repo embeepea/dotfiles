@@ -42,6 +42,16 @@
 (load-library "spec-src-switch")
 (global-set-key "\C-cs" 'sss-switch)
 
+;;;
+;;; count-next stuff
+;;;
+(autoload 'count-start "count"
+  "Start an integer count at ARG"
+  t)
+(autoload 'count-next "count"
+  "Print next number in count started by count-start"
+  t)
+
 ;; some misc convenient key bindings
 (global-set-key "\C-xw"         'compare-windows)
 (global-set-key "\C-x\C-m"      'set-mark-command)
