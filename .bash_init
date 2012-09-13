@@ -1,0 +1,13 @@
+### This is ~/.bash_init, a file containing universal bash init stuff that
+### works anywhere.  In order to get your bash on a particular system to
+### load this file on startup, put the following in your ~/.bashrc or
+### ~/.bash_profile or ~/.profile, or wherever is appropriate for that
+### system:
+### 
+### if [ -f "$HOME/.bash_init" ]; then
+###   . "$HOME/.bash_init"
+### fi
+
+alias rm='rm -i'
+alias mv='mv -i'
+alias cp='cp -i'
