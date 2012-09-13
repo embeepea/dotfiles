@@ -1,10 +1,3 @@
-(custom-set-variables
-  ;; custom-set-variables was added by Custom.
-  ;; If you edit it by hand, you could mess it up, so be careful.
-  ;; Your init file should contain only one such instance.
-  ;; If there is more than one, they won't work right.
- '(line-move-visual nil))
-
 (custom-set-faces
   ;; custom-set-faces was added by Custom.
   ;; If you edit it by hand, you could mess it up, so be careful.
@@ -13,8 +6,37 @@
  '(comint-highlight-prompt ((t (:foreground "cyan"))))
  '(dired-directory ((t (:inherit font-lock-function-name-face :foreground "cyan"))))
  '(font-lock-function-name-face ((((class color) (min-colors 88) (background light)) (:foreground "cyan"))))
- '(minibuffer-prompt ((t (:foreground "cyan"))))
-)
+ '(minibuffer-prompt ((t (:foreground "cyan")))))
+
+;;; enable some normally-disabled functions
+(put 'narrow-to-region 'disabled nil)
+(put 'eval-expression 'disabled nil)
+(put 'set-goal-column 'disabled nil)
+(put 'downcase-region 'disabled nil)
+(put 'upcase-region 'disabled nil)
+
+;;; define some useful functions:
+(defun jump-to-next-window ()
+  "select the window under the current window"
+  (interactive)
+  (other-window 1))
+(defun jump-to-previous-window ()
+  "select the window above the current window"
+  (interactive)
+  (other-window -1))
+(defun narr ()
+  "shorthand for 'narrow-to-region'"
+  (interactive)
+  (narrow-to-region (point) (mark)))
+(defun query-save-buffers-kill-emacs ()
+  "do save-buffers-kill-emacs after confirmation"
+  (interactive)
+  (if (yes-or-no-p "Do you really want to quit? ")
+      (save-buffers-kill-emacs)))
+(defun time-stamp ()
+  "inserts current time string in buffer"
+  (interactive)
+  (insert (current-time-string)))
 
 ;; arrange to untabify .js files before saving them
 (defun add-auto-untabify-on-save-hook ()
@@ -30,7 +52,18 @@
 ;; any wrapping):
 (setq line-move-visual 'nil)
 
-;; prepend our own personal elisp dir to the load path
+;; don't ask for confirmation when editing a symlink to a version-controlled file;
+;; just display a warning
+(setq vc-follow-symlinks nil)
+
+;; hide the standard emacs welcome screen
+(setq inhibit-splash-screen t)
+
+;; hide the initial minibuffer message; this line has to have your username hardcoded in,
+;; so if you want it to work for you, you should change "mbp" to whatever your username is.
+(setq inhibit-startup-echo-area-message "mbp")
+
+;; prepend my own personal elisp dir to the load path
 (setq load-path (cons "~/lib/emacs/lisp" load-path))
 
 ;; arrange to use the js2-mode in our personal elisp dir for editing .js files
@@ -42,15 +75,58 @@
 (load-library "spec-src-switch")
 (global-set-key "\C-cs" 'sss-switch)
 
+;;; Function cs: Control the case sensitivity of searches in the current
+;;;              buffer.
+;;; 
+;;; 	With no arg: toggle
+;;; 	    arg  = 1: make case SENSITIVE
+;;; 	    arg != 1: make case insensitive
+;;; 
+(defun cs (arg)
+  (interactive "P")
+  (if arg
+      (if (eq arg 1)
+	  (setq case-fold-search nil)
+	  (setq case-fold-search t))
+      (setq case-fold-search (not case-fold-search))
+  )
+  (if case-fold-search
+      (message "Searches are now case-insensitive in this buffer")
+      (message "Searches are now case-SENSITIVE in this buffer"))
+)
+
+
+;; Visual feedback on selections
+(setq-default transient-mark-mode t)
+
+(setq-default tab-width 4)
+
+(setq-default indent-tabs-mode nil)
+
+;; Always end a file with a newline
+(setq require-final-newline t)
+
+;; Stop at the end of the file, not just add lines
+(setq next-line-add-newlines nil)
+
+;; Enable wheelmouse support by default
+(cond (window-system
+       (mwheel-install)
+))
+
 ;;;
-;;; count-next stuff
+;;; Shell-mode stuff:
 ;;;
-(autoload 'count-start "count"
-  "Start an integer count at ARG"
-  t)
-(autoload 'count-next "count"
-  "Print next number in count started by count-start"
-  t)
+(autoload 'clear-comint-output "shell-functions-19"
+	  "erase contents of entire shell buffer"
+	  t)
+(setq shell-mode-hook
+      '(lambda ()
+	 (define-key shell-mode-map "\C-c\C-o" 'clear-comint-output)
+	 (define-key shell-mode-map "\M-n" 'notes)
+	 (abbrev-mode 1)
+	 )
+      )
 
 ;; some misc convenient key bindings
 (global-set-key "\C-xw"         'compare-windows)
@@ -64,3 +140,7 @@
 (global-set-key "\C-x9"         'compile)
 (global-set-key "\C-x8"         'next-error)
 (global-set-key "\C-x7"         'grep)
+(global-set-key "\C-x\C-c"	'query-save-buffers-kill-emacs)
+
+;;; ;;; start a shell buffer
+(shell)
