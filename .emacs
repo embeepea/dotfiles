@@ -70,6 +70,13 @@
 (autoload 'js2-mode "js2-mode" nil t)
 (add-to-list 'auto-mode-alist '("\\.js$" . js2-mode))
 
+;; actionscript-mode stuff
+;;   note: files actionscript-mode.el and actionscript-config.el are from
+;;         https://github.com/austinhaas/actionscript-mode
+(autoload 'actionscript-mode "actionscript-mode" "Major mode for actionscript." t)
+(add-to-list 'auto-mode-alist '("\\.as$" . actionscript-mode))
+(eval-after-load "actionscript-mode" '(load "actionscript-config"))
+
 ;; load the spec-src-switch library, and bind a key for convenient switching between
 ;; src and spec files
 (load-library "spec-src-switch")
