@@ -82,6 +82,9 @@
 (load-library "spec-src-switch")
 (global-set-key "\C-cs" 'sss-switch)
 
+(autoload 'count-start "count" "Arrange for the count-next to start at the integer ARG" t)
+(autoload 'count-next "count" "Insert the next integer in a sequence into the current buffer at point" t)
+
 ;;; Function cs: Control the case sensitivity of searches in the current
 ;;;              buffer.
 ;;; 
