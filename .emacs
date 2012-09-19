@@ -127,16 +127,15 @@
 ;;;
 ;;; Shell-mode stuff:
 ;;;
-(autoload 'clear-comint-output "shell-functions-19"
-	  "erase contents of entire shell buffer"
-	  t)
+(autoload 'clear-comint-output "shell-functions" "erase contents of entire shell buffer" t)
 (setq shell-mode-hook
       '(lambda ()
-	 (define-key shell-mode-map "\C-c\C-o" 'clear-comint-output)
-	 (define-key shell-mode-map "\M-n" 'notes)
-	 (abbrev-mode 1)
-	 )
+         (define-key shell-mode-map "\C-c\C-o" 'clear-comint-output)
+         (define-key shell-mode-map "\M-n" 'notes)
+         (abbrev-mode 1)
+         )
       )
+(autoload 'newshell "shell-functions" "start a new shell buffer, first renaming the current one, if any" t)
 
 ;; some misc convenient key bindings
 (global-set-key "\C-xw"         'compare-windows)
