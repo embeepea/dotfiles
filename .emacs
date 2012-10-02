@@ -77,6 +77,9 @@
 (add-to-list 'auto-mode-alist '("\\.as$" . actionscript-mode))
 (eval-after-load "actionscript-mode" '(load "actionscript-config"))
 
+(autoload 'markdown-mode "markdown-mode" "Major mode for editing Markdown files" t)
+(add-to-list 'auto-mode-alist '("\\.md$" . markdown-mode))
+
 ;; load the spec-src-switch library, and bind a key for convenient switching between
 ;; src and spec files
 (load-library "spec-src-switch")
