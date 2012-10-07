@@ -1,6 +1,9 @@
 #! /usr/bin/perl
 
 sub install {
+    #
+    # ensure a symlink in ../ to the file (or directory) $e
+    #
     my $e = shift;
 
     # If there is already a link ../$e, skip it
@@ -12,7 +15,7 @@ sub install {
     # If there is a file or directory ../$e, move it to the dotfiles/backups directory, unless there
     # is already a file named $e in that directory, in which case we skip it
     if (-e "../$e") {
-        insure_backups_dir();
+        ensure_backups_dir();
         if (! -e "backups/$e") {
             system("mv ../$e backups");
             printf("existing file ../$e saved in 'backups' directory\n");
@@ -27,12 +30,46 @@ sub install {
     printf("created symlink ~/$e -> dotfiles/$e\n");
 }
 
-sub insure_backups_dir {
+sub ensure_backups_dir {
     if (-f "./backups") {
         die "cannot create './backups' directory: a file named 'backups' is in the way\n";
     }
     if (! -d "./backups") {
         system("mkdir backups");
+    }
+}
+
+sub env_path_contains {
+    my $dir = shift;
+    my @path = split(/:/, $ENV{'PATH'});
+    foreach my $d (@path) {
+        if ($d eq $dir) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+sub env_path_add_dir {
+    my $dir = shift;
+    foreach my $bash_init_file (
+        "$ENV{HOME}/.bash_profile",
+        "$ENV{HOME}/.profile"
+        ) {
+        if (-f $bash_init_file) {
+            open(OUT, ">>$bash_init_file");
+            print(OUT "PATH=\"$dir:\$PATH\"\n");
+            close(OUT);
+            printf("$dir added to PATH in $bash_init_file; re-login for it to take effect\n");
+            return;
+        } 
+    }
+}
+
+sub ensure_path_dir {
+    my $dir = shift;
+    if (!env_path_contains($dir)) {
+        env_path_add_dir($dir);
     }
 }
 
@@ -75,3 +112,7 @@ foreach $e (<.*>,<*>) {
 # run 'make' in our emacs library dir; the Makefile there does several things needed
 # to prepare it for use
 system("cd ../lib/emacs/lisp ; make");
+
+# ensure that ~/bin and ~/local-bin are in our bash PATH
+ensure_path_dir("$ENV{HOME}/bin");
+ensure_path_dir("$ENV{HOME}/local-bin");
