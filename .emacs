@@ -89,6 +89,10 @@
 (autoload 'count-start "count" "Arrange for the count-next to start at the integer ARG" t)
 (autoload 'count-next "count" "Insert the next integer in a sequence into the current buffer at point" t)
 
+;; mybuffers.el, in lib/emacs/lisp, provides transpose-buffers function (C-M-t) which swaps
+;; the current buffer with the next one
+(load-library "mybuffers")
+
 ;;; Function cs: Control the case sensitivity of searches in the current
 ;;;              buffer.
 ;;; 
