@@ -27,16 +27,28 @@
 	 (progn
 	   (define-key js2-mode-map "\M-\C-c" 'jermaine-comment))))
 
+
+(defconst jermaine-model-def-regex    "=[[:space:]]*new[[:space:]]+[^[:space:]]*Model[[:space:]]*(")
+(defconst jermaine-property-def-regex "\.hasA\\|\.hasAn\\|\.hasMany")
+(defconst jermaine-method-def-regex   "\.respondsTo")
+
+(defconst jermaine-any-def-regex
+  (concat 
+   "\\(" jermaine-model-def-regex "\\)" 
+   "\\|"
+   "\\(" jermaine-property-def-regex "\\)" 
+   "\\|"
+   "\\(" jermaine-method-def-regex "\\)" ))
+
 (defun jermaine-comment (arg)
   "Insert a JS comment for docmenting the next Jermaine method or property (attribute) found in the current buffer."
   (interactive "p")
-  (re-search-forward "\.hasA\\|\.hasAn\\|\.hasMany\\|\.respondsTo")
+  (re-search-forward jermaine-any-def-regex)
   (beginning-of-line)
   (cond
-   ((string-equal ".hasA" (match-string 0)) (jermaine-comment-property-comment))
-   ((string-equal ".hasAn" (match-string 0)) (jermaine-comment-property-comment))
-   ((string-equal ".hasMany" (match-string 0)) (jermaine-comment-property-comment))
-   ((string-equal ".respondsTo" (match-string 0)) (jermaine-comment-method-comment))
+   ((string-match jermaine-model-def-regex    (match-string 0)) (jermaine-comment-model-comment))
+   ((string-match jermaine-property-def-regex (match-string 0)) (jermaine-comment-property-comment))
+   ((string-match jermaine-method-def-regex   (match-string 0)) (jermaine-comment-method-comment))
    (t (message "nothing found to comment!"))
    )
   )
@@ -81,6 +93,25 @@
   (next-line)
   (beginning-of-line)
   (jermaine-comment-insert-args (jermaine-comment-inferred-argument-names))
+  (jermaine-comment-indent)
+  (search-backward "/**")
+  (next-line)
+  (end-of-line)
+  )
+
+(defun jermaine-comment-model-comment ()
+  "Insert a JS comment for docmenting the next Jermaine model found in the current buffer."
+  (interactive)
+  (re-search-forward jermaine-model-def-regex)
+  (beginning-of-line)
+  (insert "/**
+         * 
+         *
+         * @class " (jermaine-comment-inferred-model-name) "
+         * @author " (user-login-name) "
+         * @modified " (current-time-string) "
+         */
+")
   (jermaine-comment-indent)
   (search-backward "/**")
   (next-line)
@@ -174,6 +205,18 @@ the entire comment, leaving point where it was"
       )
     )
   )
+
+(defun jermaine-comment-inferred-model-name ()
+  "Find the name of the first Jermaine model defined at or after point, and return it."
+  (let (local-start local-end)
+  (save-excursion
+    (re-search-forward jermaine-model-def-regex)
+    (re-search-backward "var[[:space:]]+\\([^[:space:]]+\\)[[:space:]]*=")
+    (match-string 1)
+    )
+  )
+)
+
 
 ;;; not used but saved in case it's needed later:
 ;;;
