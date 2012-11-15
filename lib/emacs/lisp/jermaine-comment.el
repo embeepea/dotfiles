@@ -1,11 +1,11 @@
 ;;;
-;;; js-comment.el: functions for editing JavaScript comments
+;;; jermaine-comment.el: functions for editing Jermaine comments
 ;;;
 ;;;     (For use with js2-mode.el)
 ;;;
 ;;; To use the functions in this file, put the following in your .emacs file:
 ;;;
-;;;    (load-file "js-comment.el")
+;;;    (load-file "jermaine-comment.el")
 ;;;
 ;;; Then, in js2-mode you can type
 ;;;
@@ -25,23 +25,23 @@
 (setq js2-mode-hook
       '(lambda ()
 	 (progn
-	   (define-key js2-mode-map "\M-\C-c" 'js-comment))))
+	   (define-key js2-mode-map "\M-\C-c" 'jermaine-comment))))
 
-(defun js-comment (arg)
+(defun jermaine-comment (arg)
   "Insert a JS comment for docmenting the next Jermaine method or property (attribute) found in the current buffer."
   (interactive "p")
   (re-search-forward "\.hasA\\|\.hasAn\\|\.hasMany\\|\.respondsTo")
   (beginning-of-line)
   (cond
-   ((string-equal ".hasA" (match-string 0)) (js-comment-property-comment))
-   ((string-equal ".hasAn" (match-string 0)) (js-comment-property-comment))
-   ((string-equal ".hasMany" (match-string 0)) (js-comment-property-comment))
-   ((string-equal ".respondsTo" (match-string 0)) (js-comment-method-comment))
+   ((string-equal ".hasA" (match-string 0)) (jermaine-comment-property-comment))
+   ((string-equal ".hasAn" (match-string 0)) (jermaine-comment-property-comment))
+   ((string-equal ".hasMany" (match-string 0)) (jermaine-comment-property-comment))
+   ((string-equal ".respondsTo" (match-string 0)) (jermaine-comment-method-comment))
    (t (message "nothing found to comment!"))
    )
   )
 
-(defun js-comment-property-comment ()
+(defun jermaine-comment-property-comment ()
   "Insert a JS comment for docmenting the next Jermaine property (attribute) found in the current buffer."
   (interactive)
   (re-search-forward "\.hasA\\|\.hasAn\\|\.hasMany")
@@ -57,14 +57,14 @@
 ")
   (search-backward "@property")
   (end-of-line)
-  (insert (js-comment-inferred-property-name))
-  (js-comment-indent)
+  (insert (jermaine-comment-inferred-property-name))
+  (jermaine-comment-indent)
   (search-backward "/**")
   (next-line)
   (end-of-line)
   )
 
-(defun js-comment-method-comment ()
+(defun jermaine-comment-method-comment ()
   "Insert a JS comment for docmenting the next Jermaine method found in the current buffer."
   (interactive)
   (re-search-forward "respondsTo")
@@ -72,7 +72,7 @@
   (insert "/**
          * 
          *
-         * @method " (js-comment-inferred-method-name) "
+         * @method " (jermaine-comment-inferred-method-name) "
          * @author " (user-login-name) "
          * @modified " (current-time-string) "
          */
@@ -80,14 +80,14 @@
   (search-backward "@method")
   (next-line)
   (beginning-of-line)
-  (js-comment-insert-args (js-comment-inferred-argument-names))
-  (js-comment-indent)
+  (jermaine-comment-insert-args (jermaine-comment-inferred-argument-names))
+  (jermaine-comment-indent)
   (search-backward "/**")
   (next-line)
   (end-of-line)
   )
 
-(defun js-comment-indent ()
+(defun jermaine-comment-indent ()
   "Assuming that point lies somewhere within a comment delimited by /** and */, re-indent
 the entire comment, leaving point where it was"
   (save-excursion
@@ -98,7 +98,7 @@ the entire comment, leaving point where it was"
       (setq comment-end-pos (point))
       (indent-region comment-begin-pos comment-end-pos))))
 
-(defun js-comment-inferred-property-name ()
+(defun jermaine-comment-inferred-property-name ()
   "Find the name of the first Jermaine-declared property at or after point, and return it."
   (let (local-start local-end)
   (save-excursion
@@ -113,7 +113,7 @@ the entire comment, leaving point where it was"
   )
 )
 
-(defun js-comment-inferred-method-name ()
+(defun jermaine-comment-inferred-method-name ()
   "Find the name of the first Jermaine-declared method at or after point, and return it."
   (let (local-start local-end)
   (save-excursion
@@ -128,7 +128,7 @@ the entire comment, leaving point where it was"
   )
 )
 
-(defun js-comment-inferred-argument-names ()
+(defun jermaine-comment-inferred-argument-names ()
   "Find the names of arguments to the first Jermaine-declared method at or after point, and return them in a list."
   (let (local-start local-end argstring argbuf)
   (save-excursion
@@ -162,7 +162,7 @@ the entire comment, leaving point where it was"
   )
 )
 
-(defun js-comment-insert-args (arglist)
+(defun jermaine-comment-insert-args (arglist)
   "Insert function arguments, given as strings in ARGLIST, into comment."
   (progn
     (if (> (length arglist) 0)
@@ -178,7 +178,7 @@ the entire comment, leaving point where it was"
 ;;; not used but saved in case it's needed later:
 ;;;
 ;;;
-;;; (defun js-comment-delete ()
+;;; (defun jermaine-comment-delete ()
 ;;;   "Search forward from point in current buffer for a JS comment, and
 ;;; delete it if found.  Returns t if a comment was found and deleted, nil
 ;;; otherwise."
