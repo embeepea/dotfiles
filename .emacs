@@ -93,6 +93,9 @@
 ;; the current buffer with the next one
 (load-library "mybuffers")
 
+;; load the js-comment library for JavaScript comments
+(load-library "js-comment")
+
 ;;; Function cs: Control the case sensitivity of searches in the current
 ;;;              buffer.
 ;;; 
