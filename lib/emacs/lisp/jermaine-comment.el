@@ -31,6 +31,7 @@
 (defconst jermaine-model-def-regex    "=[[:space:]]*new[[:space:]]+[^[:space:]]*Model[[:space:]]*(")
 (defconst jermaine-property-def-regex "\.hasA\\|\.hasAn\\|\.hasMany")
 (defconst jermaine-method-def-regex   "\.respondsTo")
+(defconst jermaine-function-def-regex "\\([^[:space:]]+\\)[[:space:]]*=[[:space:]]*function[[:space:]]*(")
 
 (defconst jermaine-any-def-regex
   (concat 
@@ -38,7 +39,10 @@
    "\\|"
    "\\(" jermaine-property-def-regex "\\)" 
    "\\|"
-   "\\(" jermaine-method-def-regex "\\)" ))
+   "\\(" jermaine-method-def-regex "\\)"
+   "\\|"
+   "\\(" jermaine-function-def-regex "\\)"
+   ))
 
 (defun jermaine-comment (arg)
   "Insert a JS comment for docmenting the next Jermaine method or property (attribute) found in the current buffer."
@@ -49,6 +53,7 @@
    ((string-match jermaine-model-def-regex    (match-string 0)) (jermaine-comment-model-comment))
    ((string-match jermaine-property-def-regex (match-string 0)) (jermaine-comment-property-comment))
    ((string-match jermaine-method-def-regex   (match-string 0)) (jermaine-comment-method-comment))
+   ((string-match jermaine-function-def-regex (match-string 0)) (jermaine-comment-function-comment))
    (t (message "nothing found to comment!"))
    )
   )
@@ -97,6 +102,33 @@
   (search-backward "/**")
   (next-line)
   (end-of-line)
+  )
+
+(defun jermaine-comment-function-comment ()
+  "Insert a JS comment for docmenting the next JavaScript function found in the current buffer."
+  (interactive)
+  (let (name)
+    (re-search-forward jermaine-function-def-regex)
+    (setq name (match-string 1))
+    (beginning-of-line)
+    (insert "/**
+         * 
+         *
+         * @function " name "
+         * @static
+         * @author " (user-login-name) "
+         * @modified " (current-time-string) "
+         */
+")
+    (search-backward "@function")
+    (next-line)
+    (beginning-of-line)
+    (jermaine-comment-insert-args (jermaine-comment-inferred-argument-names))
+    (jermaine-comment-indent)
+    (search-backward "/**")
+    (next-line)
+    (end-of-line)
+    )
   )
 
 (defun jermaine-comment-model-comment ()
@@ -160,11 +192,9 @@ the entire comment, leaving point where it was"
 )
 
 (defun jermaine-comment-inferred-argument-names ()
-  "Find the names of arguments to the first Jermaine-declared method at or after point, and return them in a list."
+  "Find the names of arguments to the next function declared at or after point, and return them in a list."
   (let (local-start local-end argstring argbuf)
   (save-excursion
-    (re-search-forward "respondsTo")
-    (re-search-forward "(")
     (re-search-forward "function")
     (re-search-forward "(")
     (setq local-start (point))
