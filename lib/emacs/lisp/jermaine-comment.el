@@ -69,7 +69,6 @@
          * @property 
          * @type {}
          * @author " (user-login-name) "
-         * @modified " (current-time-string) "
          */
 ")
   (search-backward "@property")
@@ -91,7 +90,6 @@
          *
          * @method " (jermaine-comment-inferred-method-name) "
          * @author " (user-login-name) "
-         * @modified " (current-time-string) "
          */
 ")
   (search-backward "@method")
@@ -117,7 +115,6 @@
          * @function " name "
          * @static
          * @author " (user-login-name) "
-         * @modified " (current-time-string) "
          */
 ")
     (search-backward "@function")
@@ -141,7 +138,6 @@
          *
          * @class " (jermaine-comment-inferred-model-name) "
          * @author " (user-login-name) "
-         * @modified " (current-time-string) "
          */
 ")
   (jermaine-comment-indent)
