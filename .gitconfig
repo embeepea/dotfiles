@@ -2,8 +2,8 @@
         name = Mark Phillips
         email = embeepea@git
 [core]
-        autocrlf = input
-        safecrlf = true
+#       autocrlf = input
+#       safecrlf = true
         pager    = gitpager
 [alias]
         co = checkout
