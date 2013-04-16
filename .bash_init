@@ -11,5 +11,6 @@
 alias rm='rm -i'
 alias mv='mv -i'
 alias cp='cp -i'
+alias gur="git add README.md ; git commit -m 'updates README' ; git push"
 
 export EDITOR=emacs
