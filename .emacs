@@ -162,5 +162,7 @@
 (global-set-key "\C-x7"         'grep)
 (global-set-key "\C-x\C-c"	'query-save-buffers-kill-emacs)
 
+(add-to-list 'auto-mode-alist '("\\.module$" . php-mode))
+
 ;;; ;;; start a shell buffer
 (shell)
