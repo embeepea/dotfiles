@@ -38,14 +38,19 @@
   (interactive)
   (insert (current-time-string)))
 
-;; arrange to untabify .js files before saving them
-(defun add-auto-untabify-on-save-hook ()
-   (make-local-variable 'write-file-functions)
-   (add-hook 'write-file-functions
-	     (lambda ()
-	       (untabify (point-min) (point-max)))))
-(add-hook 'js-mode-hook 'add-auto-untabify-on-save-hook)
-(add-hook 'js2-mode-hook 'add-auto-untabify-on-save-hook)
+;;
+;; Commenting this out on Mon Sep  9 14:09:05 2013, because of strange
+;; behavior where emacs never seems to finish saving a .json file.
+;; (Only seems to happen with .json files!)
+;;
+;; ;; arrange to untabify .js files before saving them
+;; (defun add-auto-untabify-on-save-hook ()
+;;    (make-local-variable 'write-file-functions)
+;;    (add-hook 'write-file-functions
+;; 	     (lambda ()
+;; 	       (untabify (point-min) (point-max)))))
+;; (add-hook 'js-mode-hook 'add-auto-untabify-on-save-hook)
+;; (add-hook 'js2-mode-hook 'add-auto-untabify-on-save-hook)
 
 ;; turn off ridiculous visual line movement behavior, so next-line, previous-line, etc
 ;; behave as I expect (they operate on logical lines in the buffer, independent of
