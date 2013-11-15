@@ -173,5 +173,31 @@
 ;; use scheme-mode for editing racket files
 (add-to-list 'auto-mode-alist '("\\.rkt$" . scheme-mode))
 
+(autoload 'geben "geben" "PHP Debugger on Emacs" t)
+
+;; The following snippet, which I got from 
+;;    http://www.emacswiki.org/emacs/PhpMode
+;; causes emacs to have better indentation rules for array literals
+;; in php-mode.  In particular, it changes
+;;     $somevar = array(
+;;                      'key' => 'value'
+;;                     );
+;; to
+;;     $somevar = array(
+;;       'key' => 'value'
+;;     );
+;; Yay!
+(add-hook 'php-mode-hook (lambda ()
+    (defun ywb-php-lineup-arglist-intro (langelem)
+      (save-excursion
+        (goto-char (cdr langelem))
+        (vector (+ (current-column) c-basic-offset))))
+    (defun ywb-php-lineup-arglist-close (langelem)
+      (save-excursion
+        (goto-char (cdr langelem))
+        (vector (current-column))))
+    (c-set-offset 'arglist-intro 'ywb-php-lineup-arglist-intro)
+    (c-set-offset 'arglist-close 'ywb-php-lineup-arglist-close)))
+
 ;;; start a shell buffer
 (shell)
