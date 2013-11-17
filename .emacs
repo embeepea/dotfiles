@@ -206,5 +206,8 @@
 ;;; (unless (package-installed-p 'scala-mode2)
 ;;;   (package-refresh-contents) (package-install 'scala-mode2))
 
+;; use octave-mode for editing *.m files
+(add-to-list 'auto-mode-alist '("\\.m$" . octave-mode))
+
 ;;; start a shell buffer
 (shell)
