@@ -199,5 +199,12 @@
     (c-set-offset 'arglist-intro 'ywb-php-lineup-arglist-intro)
     (c-set-offset 'arglist-close 'ywb-php-lineup-arglist-close)))
 
+(require 'package)
+(add-to-list 'package-archives
+             '("melpa" . "http://melpa.milkbox.net/packages/") t)
+(package-initialize)
+;;; (unless (package-installed-p 'scala-mode2)
+;;;   (package-refresh-contents) (package-install 'scala-mode2))
+
 ;;; start a shell buffer
 (shell)
