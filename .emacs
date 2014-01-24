@@ -199,15 +199,34 @@
     (c-set-offset 'arglist-intro 'ywb-php-lineup-arglist-intro)
     (c-set-offset 'arglist-close 'ywb-php-lineup-arglist-close)))
 
-(require 'package)
-(add-to-list 'package-archives
-             '("melpa" . "http://melpa.milkbox.net/packages/") t)
-(package-initialize)
-;;; (unless (package-installed-p 'scala-mode2)
-;;;   (package-refresh-contents) (package-install 'scala-mode2))
 
 ;; use octave-mode for editing *.m files
 (add-to-list 'auto-mode-alist '("\\.m$" . octave-mode))
+
+;;;
+;;; The following has to do with the emacs package system, which requires
+;;; emacs >= 24.  Note that if you use the emacs package system's ability
+;;; to install packages and save them to this .emacs file, you'll need to
+;;; move the lines it adds to be inside this conditional, in order for this
+;;; file to continue to work in versions of emacs prior to 24.
+;;;
+(if (>= emacs-major-version 24)
+  (progn
+    ;
+    ; add melpa archive to package sysgtem
+    ;
+    (require 'package)
+    (add-to-list 'package-archives
+                 '("melpa" . "http://melpa.milkbox.net/packages/") t)
+    (package-initialize)
+    ;
+    ; load scala-mode2 (from melpa archive)
+    ;
+    (unless (package-installed-p 'scala-mode2)
+      (package-refresh-contents) (package-install 'scala-mode2))
+  )
+)
+
 
 ;;; start a shell buffer
 (shell)
