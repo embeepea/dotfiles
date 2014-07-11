@@ -199,6 +199,17 @@
     (c-set-offset 'arglist-intro 'ywb-php-lineup-arglist-intro)
     (c-set-offset 'arglist-close 'ywb-php-lineup-arglist-close)))
 
+(require 'package)
+(add-to-list 'package-archives
+             '("melpa" . "http://melpa.milkbox.net/packages/") t)
+(package-initialize)
+
+;;; (unless (package-installed-p 'scala-mode2)
+;;;   (package-refresh-contents) (package-install 'scala-mode2))
+
+(unless (package-installed-p 'cider)
+  (package-install 'cider))
+
 
 ;; use octave-mode for editing *.m files
 (add-to-list 'auto-mode-alist '("\\.m$" . octave-mode))
