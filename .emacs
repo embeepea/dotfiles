@@ -207,8 +207,8 @@
 ;;; (unless (package-installed-p 'scala-mode2)
 ;;;   (package-refresh-contents) (package-install 'scala-mode2))
 
-(unless (package-installed-p 'cider)
-  (package-install 'cider))
+;(unless (package-installed-p 'cider)
+;  (package-install 'cider))
 
 
 ;; use octave-mode for editing *.m files
@@ -233,8 +233,8 @@
     ;
     ; load scala-mode2 (from melpa archive)
     ;
-    (unless (package-installed-p 'scala-mode2)
-      (package-refresh-contents) (package-install 'scala-mode2))
+ ;  (unless (package-installed-p 'scala-mode2)
+ ;    (package-refresh-contents) (package-install 'scala-mode2))
   )
 )
 
