@@ -1,10 +1,10 @@
 (custom-set-faces
-  ;; custom-set-faces was added by Custom.
-  ;; If you edit it by hand, you could mess it up, so be careful.
-  ;; Your init file should contain only one such instance.
-  ;; If there is more than one, they won't work right.
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
  '(comint-highlight-prompt ((t (:foreground "cyan"))))
- '(dired-directory ((t (:inherit font-lock-function-name-face :foreground "cyan"))))
+ '(dired-directory ((t (:inherit font-lock-function-name-face :foreground "cyan"))) t)
  '(font-lock-function-name-face ((((class color) (min-colors 88) (background light)) (:foreground "cyan"))))
  '(minibuffer-prompt ((t (:foreground "cyan")))))
 
@@ -67,6 +67,9 @@
 ;; hide the initial minibuffer message; this line has to have your username hardcoded in,
 ;; so if you want it to work for you, you should change "mbp" to whatever your username is.
 (setq inhibit-startup-echo-area-message "mbp")
+
+;; turn off lax space matching for incremental search
+(setq search-whitespace-regexp nil)
 
 ;; prepend my own personal elisp dir to the load path
 (setq load-path (cons "~/lib/emacs/lisp" load-path))
@@ -241,3 +244,9 @@
 
 ;;; start a shell buffer
 (shell)
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(custom-enabled-themes (quote (manoj-dark))))
